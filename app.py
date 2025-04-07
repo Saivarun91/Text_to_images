@@ -6,6 +6,7 @@ import uuid
 import streamlit as st
 from dotenv import load_dotenv
 import os
+import textwrap
 
 # Load environment variables from .env file
 load_dotenv()
@@ -39,16 +40,36 @@ def generate_manga_image(text_prompt):
     raise Exception("Failed to generate image after multiple retries.")
 
 # Function to add speech bubble
+
 def add_speech_bubble(image, text):
     draw = ImageDraw.Draw(image)
-    font = ImageFont.load_default()  # Use default font (or load a custom manga-style font)
-    
-    # Define speech bubble position
-    bubble_x, bubble_y, bubble_w, bubble_h = 50, 20, 400, 100
-    draw.rectangle([bubble_x, bubble_y, bubble_x + bubble_w, bubble_y + bubble_h], fill="white", outline="black")
-    draw.text((bubble_x + 10, bubble_y + 10), text, fill="black", font=font)
-    
+
+    # Try loading a TrueType font
+    try:
+        font = ImageFont.truetype("arial.ttf", 24)  # Use any available TTF font
+    except:
+        font = ImageFont.load_default()
+
+    # Define speech bubble position and size
+    bubble_x, bubble_y = 30, 30
+    bubble_w, bubble_h = 500, 140
+
+    # Wrap the text into multiple lines
+    wrapped_text = textwrap.fill(text, width=40)
+
+    # Draw the speech bubble
+    draw.rectangle(
+        [bubble_x, bubble_y, bubble_x + bubble_w, bubble_y + bubble_h],
+        fill="white",
+        outline="black",
+        width=3
+    )
+
+    # Draw text inside the bubble
+    draw.text((bubble_x + 15, bubble_y + 15), wrapped_text, fill="black", font=font)
+
     return image
+
 
 # Streamlit UI
 st.title("🎨 Manga Story Generator")
